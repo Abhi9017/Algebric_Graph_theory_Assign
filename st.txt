@@ -1,0 +1,194 @@
+import java.io.*;
+import java.util.*;
+import java.util.Random;
+
+class St{
+  
+   public static class Edge
+   {
+	   double src;
+	   double des;
+	   int dir;
+	   Edge(double s,double d,int dir)
+	   {
+		   this.src=s;
+		   this.des=d;
+		   this.dir=dir;
+		   
+	   }
+   }
+   public static void genRanGraph(ArrayList<Edge> m[], int n) {
+   Random rand = new Random();   
+
+   
+   for (int i = 0; i < n; i++) {
+      m[i] = new ArrayList<Edge>();  
+   }
+
+  
+   for (int i = 0; i < n; i++) {
+      for (int j = i + 1; j < n; j++) {  
+         if (rand.nextDouble() < 0.5) {  
+            m[i].add(new Edge(i, j,1));  
+            m[j].add(new Edge(j, i,1));  
+      }
+   }
+   }
+
+   for (int i = 0; i < n; i++) {
+      System.out.print(i + " --> ");
+      for (Edge e : m[i]) {
+         System.out.print(e.des + " "); 
+      }
+      System.out.println();  
+   }
+}
+   
+   
+    public static void lap(ArrayList<Edge> graph[],double l[][])
+   {
+	   
+	   for (int i=0;i<graph.length;i++)
+	   {
+		   for(int j=0;j<graph[i].size();j++)
+		   {
+			   Edge e=graph[i].get(j);
+			   l[i][i]=graph[i].size();
+			   double negativeOne = -1.0;
+double zero = 0.0;			   
+			   if(e.dir==1)
+			   {
+				   l[i][(int) e.des] = -1.0;
+			   }
+			   else{
+				    l[i][(int) e.des] = 0.0;
+			   }
+		   }
+	   }
+	   //print lap
+	   System.out.println("printing laplacian  matrix");
+	   for(int i=0;i<l.length;i++)
+	   {
+		   for (int j=0;j<l.length;j++)
+		   {
+		   //System.out.print("["+i+"]"+"["+j+"]");
+			   System.out.print(" "+l[i][j]+" ");
+		   }
+	
+	System.out.println("");
+	   }
+   }
+   
+    public static void gussian(double m[][])
+   {
+	      int n = m.length;
+
+        for (int i = 0; i < n; i++) {
+            if (m[i][i] == 0) {
+                System.out.println("Swap rows because element is zero at row " + i);
+                boolean swap = false;
+                for (int k = i + 1; k < n; k++) {
+                    if (m[k][i] != 0) {
+                        swapRows(m, i, k);
+                        swap = true;
+                        break;
+                    }
+                }
+                if (!swap) {
+                    System.out.println("Singular matrix. No unique solution exists.");
+                    return;
+                }
+            }
+
+// if get large no so normalize 
+            double x = m[i][i];
+            for (int j = i; j <= n-1; j++) { 
+                m[i][j] /= x;
+            }
+
+            for (int j = i + 1; j < n-1; j++) {
+                double factor = m[j][i];
+                for (int k = i; k <= n-1; k++) {
+                    m[j][k] -= factor * m[i][k];
+                }
+            }
+        }
+ System.out.println("guass matrix");
+	   for(int i=0;i<n-1;i++) // remove last row
+	   {
+		   for (int j=0;j<n-1;j++) // removing last column
+		   {
+		   //System.out.print("["+i+"]"+"["+j+"]");
+			   System.out.print(" "+m[i][j]+" ");
+		   }
+	
+	System.out.println("  / ");
+	   }
+        
+
+      
+	   
+   }
+   // this func for gussian elimation
+    public static void swapRows(double[][] matrix, int row1, int row2) {
+        for (int i = 0; i < matrix[0].length; i++) {
+            double temp = matrix[row1][i];
+            matrix[row1][i] = matrix[row2][i];
+            matrix[row2][i] = temp;
+        }
+    }
+     public static double determinant(double[][] matrix) {
+    int n = matrix.length; 
+    if (n == 1) {
+        return matrix[0][0]; 
+    }
+    if (n == 2) {
+        return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
+    }
+    
+    double det = 0.0; 
+    for (int i = 0; i < n; i++) {
+        double[][] subMatrix = getSubMatrix(matrix, 0, i);
+        det += Math.pow(-1, i) * matrix[0][i] * determinant(subMatrix);
+    }
+    return det;
+}
+    
+public static double[][] getSubMatrix(double[][] matrix, int excludeRow, int excludeCol) {
+    int n = matrix.length;
+    double[][] subMatrix = new double[n - 1][n - 1];
+    int r = 0; 
+    for (int i = 0; i < n; i++) {
+        if (i == excludeRow) {
+            continue; 
+        }
+        int c = 0; 
+        for (int j = 0; j < n; j++) {
+            if (j == excludeCol) {
+                continue; 
+            }
+            subMatrix[r][c] = matrix[i][j];
+            c++;
+        }
+        r++;
+    }
+    return subMatrix;
+}
+    public static void main(String args[])
+ {
+	 int numberOfNodes = 11;
+	 ArrayList<Edge> m[]=new ArrayList[numberOfNodes];
+	 genRanGraph(m,numberOfNodes);
+	 double[][] lap=new double[numberOfNodes][numberOfNodes];
+	 lap(m,lap);
+	// gussian(lap); 
+  int excludeRow = 1; // Row to exclude
+    int excludeCol = 1; // Column to exclude
+    double[][] reducedLap = getSubMatrix(lap, excludeRow, excludeCol);
+    double det = determinant(reducedLap);
+
+    System.out.println("Determinant of the reduced Laplacian matrix: " + det);
+	 
+	 
+ }
+}
